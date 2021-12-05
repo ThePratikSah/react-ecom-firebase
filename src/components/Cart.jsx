@@ -1,17 +1,43 @@
-import axios from "axios";
+import { addDoc, collection, Timestamp } from "firebase/firestore";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import { useCart } from "react-use-cart";
+import { db } from "../firebase";
 
 const Cart = () => {
-  const [loading, setLoading] = useState(false);
-  const [phone, setPhone] = useState("");
+  // const [loading, setLoading] = useState(false);
   const [viewModal, setViewModal] = useState(false);
 
   const { isEmpty, items, updateItemQuantity, cartTotal, emptyCart } =
     useCart();
 
-  if (isEmpty)
+  const { register, handleSubmit } = useForm();
+
+  const onSubmit = async (data) => {
+    try {
+      // check if phone is valid or not
+      if (data.phone && data.phone.length != 10) return alert("Invalid phone");
+
+      // make a post request to the API and on success, clear the cart and redirect to homepage
+      const config = {
+        phone: data.phone,
+        orderDetails: JSON.stringify(items),
+        created: Timestamp.now(),
+      };
+
+      const newOrderRef = await addDoc(collection(db, "orders"), config);
+
+      if (newOrderRef.id) {
+        emptyCart();
+        return;
+      }
+    } catch (error) {
+      alert("Something went wrong");
+    }
+  };
+
+  if (isEmpty) {
     return (
       <div className="empty_cart">
         <p>
@@ -20,31 +46,9 @@ const Cart = () => {
         </p>
       </div>
     );
+  }
 
-  const phoneSubmit = async () => {
-    const phoneNumber = document.getElementById("phone").value;
-    console.log(phoneNumber);
-
-    if (!phoneNumber || phoneNumber.length < 10) return;
-
-    setPhone(phoneNumber);
-
-    try {
-      // make a post request to the API and on success, clear the cart and redirect to homepage
-      const data = {
-        phone,
-        orderDetails: JSON.stringify(items),
-      };
-      const response = await axios.post("http://localhost:3300/order", data);
-
-      if (response.status === 201) {
-        alert("Order placed successfully");
-        emptyCart();
-      }
-    } catch (error) {
-      alert("Something went wrong");
-    }
-  };
+  // const phoneSubmit = async () => {};
 
   return (
     <div className="cart_page">
@@ -96,16 +100,21 @@ const Cart = () => {
       {/* div for phone number input */}
 
       {viewModal ? (
-        <div className="input_group">
-          <p className="input_label">Please enter Phone number</p>
-          <input className="input" type="text" id="phone" />
-          <button onClick={phoneSubmit} className="submit_phone_number">
-            Submit
-          </button>
-          <button onClick={() => setViewModal(false)} className="link">
-            Cancel
-          </button>
-        </div>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="input_group">
+            <p className="input_label">Please enter Phone number</p>
+            <input
+              {...register("phone")}
+              className="input"
+              type="text"
+              id="phone"
+            />
+            <button className="submit_phone_number">Submit</button>
+            <button onClick={() => setViewModal(false)} className="link">
+              Cancel
+            </button>
+          </div>
+        </form>
       ) : (
         ""
       )}

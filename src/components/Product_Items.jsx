@@ -1,7 +1,7 @@
 import React from "react";
 import { useCart } from "react-use-cart";
 
-const Product_Items = ({ id, title, description, price, salePrice, item }) => {
+const Product_Items = ({ id, title, price, item }) => {
   const { addItem } = useCart();
 
   return (

@@ -1,7 +1,9 @@
-import axios from "axios";
+// import axios from "axios";
+import { collection, getDocs } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useCart } from "react-use-cart";
+import { db } from "../firebase";
 import ProductItems from "./Product_Items";
 
 const Products = () => {
@@ -11,16 +13,30 @@ const Products = () => {
   // fetch the product here
   useEffect(() => {
     const fetchProduct = async () => {
-      const { data } = await axios.get("http://localhost:3300/product");
-      setProduct(data.products);
+      // this code was fetching the data from the API I created
+      // const { data } = await axios.get("http://localhost:3300/product");
+      // setProduct(data.products);
+
+      const fetchedProduct = await getDocs(collection(db, "product"));
+      fetchedProduct.forEach((doc) => {
+        let docItem = {
+          id: doc.id,
+          ...doc.data(),
+        };
+        setProduct((item) => [...item, docItem]);
+      });
     };
     fetchProduct();
   }, []);
 
   return (
     <>
-      {product.map((item) => (
+      {/* {product.map((item) => (
         <ProductItems key={item.id} {...item} item={item} />
+      ))} */}
+
+      {product.map((item, id) => (
+        <ProductItems key={id} {...item} item={item} />
       ))}
 
       <div className="footer_cart_info">

@@ -1,5 +1,7 @@
-import axios from "axios";
+// import axios from "axios";
+import { collection, getDocs, orderBy, query } from "firebase/firestore";
 import { useEffect, useState } from "react";
+import { db } from "../firebase";
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
@@ -7,8 +9,25 @@ const Orders = () => {
   // fetch the product here
   useEffect(() => {
     const fetchOrders = async () => {
-      const { data } = await axios.get("http://localhost:3300/order");
-      setOrders(data.orders);
+      // const { data } = await axios.get("http://localhost:3300/order");
+      // setOrders(data.orders);
+
+      let date = new Date();
+      let day = date.getDate();
+      let month = date.getMonth() + 1;
+      let year = date.getFullYear();
+
+      const q = query(collection(db, "orders"), orderBy("created", "desc"));
+
+      const fetchedOrders = await getDocs(q);
+      fetchedOrders.forEach((doc) => {
+        let docItem = {
+          id: doc.id,
+          ...doc.data(),
+        };
+        setOrders((item) => [...item, docItem]);
+        console.log(doc.id, " => ", doc.data());
+      });
     };
     fetchOrders();
   }, []);
