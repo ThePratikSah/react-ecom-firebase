@@ -12,11 +12,6 @@ const Orders = () => {
       // const { data } = await axios.get("http://localhost:3300/order");
       // setOrders(data.orders);
 
-      let date = new Date();
-      let day = date.getDate();
-      let month = date.getMonth() + 1;
-      let year = date.getFullYear();
-
       const q = query(collection(db, "orders"), orderBy("created", "desc"));
 
       const fetchedOrders = await getDocs(q);
@@ -26,7 +21,6 @@ const Orders = () => {
           ...doc.data(),
         };
         setOrders((item) => [...item, docItem]);
-        console.log(doc.id, " => ", doc.data());
       });
     };
     fetchOrders();

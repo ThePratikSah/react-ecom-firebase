@@ -19,23 +19,3 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore();
 
 export { app, db };
-
-// const addData = async () => {
-//   try {
-//     // const docRef = await addDoc(collection(db, "users"), {
-//     //   first: "Ada",
-//     //   last: "Lovelace",
-//     //   born: 1815,
-//     // });
-//     // console.log("Document written with ID: ", docRef.id);
-
-//     const querySnapshot = await getDocs(collection(db, "users"));
-//     querySnapshot.forEach((doc) => {
-//       console.log(`${doc.id} => ${doc.data().name}`);
-//     });
-//   } catch (e) {
-//     console.error("Error adding document: ", e);
-//   }
-// };
-
-// addData();
